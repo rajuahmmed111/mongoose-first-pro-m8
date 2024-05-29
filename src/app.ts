@@ -1,24 +1,21 @@
 import cors from 'cors';
-import express, { Application, Request, Response } from 'express';
-import { StudentRoutes } from './app/Modules/student/student.router';
+import express, { Application } from 'express';
+import globalMiddleware from './app/Middleware/globalMiddleware';
+import notFound from './app/Middleware/notFound';
+import router from './app/routes';
 const app: Application = express();
-// const port = 3000
 
 // parsers
 app.use(express.json());
 app.use(cors());
 
-// Application routes
-app.use('/api/v1/students', StudentRoutes);
-
-const getController = (req: Request, res: Response) => {
-  const a = 10;
-  res.send(a);
-};
-
-app.get('/', getController);
+app.use('/api/v1', router);
 
 // console.log(process.cwd());
 // C:\projects\Mongoose\mongoose-first-pro-m8/.env
+
+app.use(globalMiddleware);
+// route not found
+app.use(notFound);
 
 export default app;
