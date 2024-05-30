@@ -9,7 +9,7 @@ const getAllStudents: RequestHandler = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Student is delete successfully',
+    message: 'Students are retrieved successfully',
     data: result,
   });
 });
@@ -20,7 +20,7 @@ const getSingleStudent: RequestHandler = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Student is delete successfully',
+    message: 'Student is retrieved successfully',
     data: result,
   });
 });
@@ -36,8 +36,21 @@ const deletedStudent: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const updateStudent: RequestHandler = catchAsync(async (req, res) => {
+  const { studentId } = req.params;
+  const { student } = req.body;
+  const result = await StudentServices.updateStudentsFromDB(studentId, student);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Student is update successfully',
+    data: result,
+  });
+});
+
 export const StudentController = {
   getAllStudents,
-  getSingleStudents: getSingleStudent,
+  getSingleStudent,
   deletedStudent,
+  updateStudent,
 };
