@@ -2,19 +2,94 @@
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 import AppError from '../../Error/Apperror';
+import QueryBuilder from '../../builder/queryBuilder';
 import { Student } from '../student.model';
 import { User } from '../user/user.model';
+import { studentSearchableFields } from './student.constant';
 import { TStudent } from './student.interface';
 
-const getAllStudentsFromDB = async () => {
-  const result = await Student.find()
-    .populate({
+const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
+  // { email: {$regex: query?.searchTerm, $options: i}}
+  // const queryObj = { ...query }; // copy
+  // const studentSearchableFields = [
+  //   'email',
+  //   'name.middleName',
+  //   'presentAddress',
+  // ];
+  // let searchTerm = '';
+  // if (query?.searchTerm) {
+  //   searchTerm = query?.searchTerm as string;
+  // }
+  // const searchQuery = Student.find({
+  //   $or: studentSearchableFields.map((field) => ({
+  //     [field]: { $regex: searchTerm, $options: 'i' },
+  //   })),
+  // });
+  // const excludeFields = [
+  //   'searchTerm',
+  //   'sort',
+  //   'page',
+  //   'skip',
+  //   'limit',
+  //   'fields',
+  // ];
+  // excludeFields.forEach((el) => delete queryObj[el]);
+  // console.log({ query }, { queryObj });
+  // const filterQuery = searchQuery
+  //   .find(queryObj)
+  // .populate({
+  //   path: 'academicDepartment',
+  //   populate: {
+  //     path: 'academicFaculty',
+  //   },
+  // })
+  //   .populate('admissionSemester');
+  //filtering
+  // let sort = '-createdAt';
+  // if (query?.sort) {
+  //   sort = query?.sort as string;
+  // }
+  // const sortQuery = filterQuery.sort(sort);
+  // let limit = 1;
+  // let page = 1;
+  // let skip = 0;
+  // if (query?.limit) {
+  //   limit = Number(query?.limit);
+  // }
+  // if (query?.page) {
+  //   page = Number(query?.page);
+  //   skip = (page - 1) * limit;
+  // }
+  // const pagination = sortQuery.skip(skip);
+  // const limitQuery = pagination.limit(limit);
+  // field limiting
+  // let fields = '-__v';
+  // // fields= name,email
+  // // convert fields= (name email)
+  // if (query?.fields) {
+  //   fields = (query?.fields as string).split(',').join(' ');
+  //   console.log({ fields });
+  // }
+  // const fieldsQuery = await limitQuery.select(fields);
+  // return fieldsQuery;
+
+  // class system a query
+  const studentQuery = new QueryBuilder(
+    Student.find().populate({
       path: 'academicDepartment',
       populate: {
         path: 'academicFaculty',
       },
-    })
-    .populate('admissionSemester');
+    }),
+    query,
+  )
+    .search(studentSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const result = await studentQuery.modelQuery;
   return result;
 };
 
@@ -57,7 +132,6 @@ const updateStudentsFromDB = async (id: string, payload: Partial<TStudent>) => {
       modifiedUpdateData[`localGuardian.${keys}`] = value;
     }
   }
-  console.log(modifiedUpdateData);
   /*
   guardian: {
     fatherOccupation: "Teacher"
@@ -67,7 +141,7 @@ const updateStudentsFromDB = async (id: string, payload: Partial<TStudent>) => {
   guardian.fatherOccupation =  "Teacher"
   */
 
-  const result = await Student.findOneAndUpdate({ id }, modifiedUpdateData, {
+  const result = await Student.findByIdAndUpdate(id, modifiedUpdateData, {
     new: true,
     runValidators: true,
   });
@@ -80,8 +154,8 @@ const deletedStudentsFromDB = async (id: string) => {
   try {
     session.startTransaction();
     // delete student (transaction-1)
-    const deleteStudent = await Student.findOneAndUpdate(
-      { id },
+    const deleteStudent = await Student.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
@@ -90,10 +164,12 @@ const deletedStudentsFromDB = async (id: string) => {
       throw new AppError(httpStatus.BAD_REQUEST, 'fail to delete student ');
     }
 
+    const userId = deleteStudent.user;
+
     // delete user (transaction-2)
 
-    const deleteUser = await User.findOneAndUpdate(
-      { id },
+    const deleteUser = await User.findByIdAndUpdate(
+      userId,
       { isDeleted: true },
       { new: true, session },
     );

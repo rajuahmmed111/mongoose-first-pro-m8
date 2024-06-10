@@ -92,8 +92,8 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     user: {
       type: Schema.Types.ObjectId,
       required: [true, 'User id is required'],
-      unique: true,
       ref: 'User',
+      unique: true,
     },
     name: {
       type: userNameSchema,
@@ -165,7 +165,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 
 // virtual
 studentSchema.virtual('fullName').get(function () {
-  return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
+  return `${this?.name?.firstName} ${this?.name?.middleName} ${this?.name?.lastName}`;
 });
 
 // Query middleware

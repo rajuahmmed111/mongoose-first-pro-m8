@@ -5,7 +5,7 @@ import sendResponse from '../../utils/sendResponse';
 import { StudentServices } from './student.service';
 
 const getAllStudents: RequestHandler = catchAsync(async (req, res) => {
-  const result = await StudentServices.getAllStudentsFromDB();
+  const result = await StudentServices.getAllStudentsFromDB(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -14,9 +14,9 @@ const getAllStudents: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
-const getSingleStudent: RequestHandler = catchAsync(async (req, res) => {
-  const { studentId } = req.params;
-  const result = await StudentServices.getSingleStudentsFromDB(studentId);
+const getSingleStudent = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await StudentServices.getSingleStudentsFromDB(id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -25,9 +25,9 @@ const getSingleStudent: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
-const deletedStudent: RequestHandler = catchAsync(async (req, res) => {
-  const { studentId } = req.params;
-  const result = await StudentServices.deletedStudentsFromDB(studentId);
+const deletedStudent = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await StudentServices.deletedStudentsFromDB(id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -36,10 +36,10 @@ const deletedStudent: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
-const updateStudent: RequestHandler = catchAsync(async (req, res) => {
-  const { studentId } = req.params;
+const updateStudent = catchAsync(async (req, res) => {
+  const { id } = req.params;
   const { student } = req.body;
-  const result = await StudentServices.updateStudentsFromDB(studentId, student);
+  const result = await StudentServices.updateStudentsFromDB(id, student);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
