@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import AppError from '../../Error/Apperror';
 import QueryBuilder from '../../builder/queryBuilder';
 import { AcademicSemester } from '../academicSemester/academicSemester.model';
+import { OfferedCourse } from '../offeredCourse/offeredCourse.model';
 import { TSemesterRegistration } from './semesterRegis.interface';
 import { SemesterRegistration } from './semesterRegis.model';
 import { RegistrationStatus } from './semesterRegistration.constant';

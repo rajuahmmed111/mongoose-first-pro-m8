@@ -75,12 +75,14 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
 
   // class system a query
   const studentQuery = new QueryBuilder(
-    Student.find().populate({
-      path: 'academicDepartment',
-      populate: {
-        path: 'academicFaculty',
-      },
-    }),
+    Student.find()
+      .populate('user')
+      .populate({
+        path: 'academicDepartment',
+        populate: {
+          path: 'academicFaculty',
+        },
+      }),
     query,
   )
     .search(studentSearchableFields)

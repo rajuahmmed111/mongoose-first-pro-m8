@@ -1,8 +1,8 @@
-import mongoose, { Schema } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { Days } from './offeredCourse.constant';
 import { TOfferedCourse } from './offeredCourse.interface';
 
-const offeredCourseSchema = new mongoose.Schema<TOfferedCourse>(
+const offeredCourseSchema = new Schema<TOfferedCourse>(
   {
     semesterRegistration: {
       type: Schema.Types.ObjectId,
@@ -62,7 +62,7 @@ const offeredCourseSchema = new mongoose.Schema<TOfferedCourse>(
   },
 );
 
-export const OfferedCourse = mongoose.model<TOfferedCourse>(
+export const OfferedCourse = model<TOfferedCourse>(
   'OfferedCourse',
   offeredCourseSchema,
 );

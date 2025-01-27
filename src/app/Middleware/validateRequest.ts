@@ -6,6 +6,7 @@ const validateRequest = (schema: AnyZodObject) => {
     // zod
     await schema.parseAsync({
       body: req.body,
+      cookie: req.cookies,
     });
     next();
   });
