@@ -200,15 +200,19 @@ const forgetPassword = async (userId: string) => {
     throw new AppError(httpStatus.FORBIDDEN, 'This User is blocked !');
   }
 
-  if (
-    isUserExists?.changePasswordAt &&
-    User.isJwtIssuedBeforePasswordChange(
-      isUserExists?.changePasswordAt,
-      iat as number,
-    )
-  ) {
-    throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized !!');
-  }
+  const jwtPayload = {
+    userId: isUserExists.id,
+    role: isUserExists.role,
+  };
+
+  // access token
+  const accessToken = cerateToken(
+    jwtPayload,
+    config.jwt_access_token as string,
+    config.jwt_access_expires_in as string,
+  );
+
+  const resetUILink = `http://localhost:3000?id=${isUserExists.id}token=${accessToken}`;
 };
 
 export const authServices = {
