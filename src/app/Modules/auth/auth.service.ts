@@ -181,8 +181,39 @@ const refreshToken = async (token: string) => {
   };
 };
 
+const forgetPassword = async (userId: string) => {
+  const isUserExists = await User.isUserExistsCustomId(userId);
+
+  if (!isUserExists) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This User is not found !');
+  }
+
+  // check if the user is already deleted !
+  const isDeleted = isUserExists?.isDeleted;
+  if (isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, 'This User is deleted !');
+  }
+
+  // check if the user is blocked !
+  const userStatus = isUserExists?.status;
+  if (userStatus === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'This User is blocked !');
+  }
+
+  if (
+    isUserExists?.changePasswordAt &&
+    User.isJwtIssuedBeforePasswordChange(
+      isUserExists?.changePasswordAt,
+      iat as number,
+    )
+  ) {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized !!');
+  }
+};
+
 export const authServices = {
   loginUser,
   changePassword,
   refreshToken,
+  forgetPassword,
 };
